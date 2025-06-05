@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sicis Via Monti - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+        #loginBox, .reparto {
+            background: #111;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+            max-width: 95%;
+            margin: 40px auto;
+        }
+        input, button {
+            padding: 14px;
+            margin-top: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+        input {
+            background: #222;
+            color: #fff;
+        }
+        button {
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ddd;
+        }
+        h2 {
+            text-align: center;
+            font-size: 24px;
+        }
+        .reparto {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginBox">
+    <h2>Benvenuto in Sicis Via Monti</h2>
+    <label for="username">Inserisci il tuo nome:</label>
+    <input type="text" id="username" placeholder="es. mattia" />
+    <button onclick="login()">Entra</button>
+</div>
+
+<div id="digitalPrint" class="reparto">
+    <h2>Reparto: Digital Print</h2>
+    <button onclick="openOrderHelp()">Aiutami ad ordinare</button>
+    <button onclick="openPrintHelp()">Aiutami a stampare</button>
+    <button onclick="openMaterialList()">Materiale mancante</button>
+    <button onclick="openFileSearch()">Cerca decoro</button>
+    <button onclick="checkPuliziaMacchina()">Check pulizia macchina</button>
+    <button onclick="grandezzaStampa()">Calcola grandezza stampa</button>
+    <button onclick="definisciAumentoStampe()">Definisci aumento stampe</button>
+    <button onclick="visualizzaOrdiniStampanti()">Controlla ordini</button>
+  
+    <div id="orderHelpOutput"></div>
+    <div id="printHelpOutput"></div>
+    <div id="materialListContainer"></div>
+    <div id="searchFileOutput"></div>
+    <div id="puliziaOutput"></div>
+    <div id="misureOutput"></div>
+    <div id="aumentoOutput"></div>
+    <div id="ordiniStampanti"></div>
+    <div id="controllaOrdini_stampanti"></div>
+  </div>
+  
+<div id="stratifica" class="reparto">
+    <h2>Reparto: Stratifica</h2>
+</div>
+<div id="imballo" class="reparto">
+    <h2>Reparto: Imballo</h2>
+</div>
+<div id="amministrazione" class="reparto">
+    <h2>Reparto: Amministrazione</h2>
+    <h3 style="color:white;">Carica Ordine</h3>
+<div id="caricaOrdineAmministrazione">
+    <input type="text" id="riferimentoOrdineAmm" placeholder="Riferimento Ordine"><br>
+    <select id="prioritaOrdineAmm">
+        <option value="">Seleziona Priorità</option>
+        <option value="Alta">Alta</option>
+        <option value="Media">Media</option>
+        <option value="Bassa">Bassa</option>
+    </select><br>
+    <label for="scadenzaOrdineAmm" style="color:white;">Data richiesta:</label><br>
+    <input type="date" id="scadenzaOrdineAmm"><br>
+    <select id="destinazioneOrdineAmm">
+        <option value="">Invia a...</option>
+        <option value="digitalPrint">Stampanti</option>
+        <option value="forno">Forno</option>
+        <option value="rettilinea">Rettile</option>
+        <option value="imballo">Imballo</option>
+    </select><br>
+    <button onclick="caricaOrdineAmministrazione()">Carica Ordine</button>
+    <div id="confermaCaricamentoOrdineAmm" style="color:white; margin-top: 10px;"></div>
+</div>
+
+</div>
+<div id="cnc" class="reparto">
+    <h2>Reparto: CNC</h2>
+</div>
+
+<script>
+function login() {
+    const username = document.getElementById('username').value.trim().toLowerCase();
+    const reparti = {
+        mattia: 'digitalPrint',
+        joseph: 'stratifica',
+        andy: 'imballo',
+        giovanni: 'amministrazione',
+        cuppie: 'amministrazione',
+        alex: 'amministrazione',
+        omar: 'cnc'
+    };
+
+    const repartoId = reparti[username];
+
+    if (repartoId) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById(repartoId).style.display = 'block';
+    } else {
+        alert("Utente non riconosciuto. Riprova.");
+    }
+}
+</script>
+<script>
+    function openOrderHelp() {
+        const container = document.getElementById("orderHelpOutput");
+        container.innerHTML = `
+            <h3>Ordina Materiali</h3>
+            <label>Cosa vuoi ordinare?</label><br>
+            <button onclick="ordinaMateriale()">Materiale</button>
+            <button onclick="ordinaTubi()">Tubi Katana</button>
+            <button onclick="ordinaInchiostri()">Inchiostri</button>
+            <br><button onclick="document.getElementById('orderHelpOutput').innerHTML = '';">Chiudi</button>
+        `;
+    }
+    
+    function ordinaMateriale() {
+        const mq = prompt("Quanti metri quadri devi stampare?");
+        const totaleMq = (parseFloat(mq) * 2) + 9;
+        const bobine = Math.ceil(totaleMq / 45.6);
+        const costo = bobine * 167;
+        alert(`Hai bisogno di ${bobine} bobine. Costo totale: €${costo.toFixed(2)}`);
+    }
+    
+    function ordinaTubi() {
+        const t350 = parseInt(prompt("Quanti tubi da 350mm?")) || 0;
+        const t600 = parseInt(prompt("Quanti tubi da 600mm?")) || 0;
+        const costoTubi = (t350 * 8.5) + (t600 * 12.5);
+        const trattamento = (t350 + t600) * 14;
+        const spedizione = 100;
+        const totale = costoTubi + trattamento + spedizione;
+        alert(`Costo tubi: €${costoTubi.toFixed(2)}\nTrattamento: €${trattamento.toFixed(2)}\nSpedizione: €${spedizione}\nTotale: €${totale.toFixed(2)}`);
+    }
+    
+    function ordinaInchiostri() {
+        const tipo = prompt("Che tipo di inchiostro? (LH100 o LUS170)").toUpperCase();
+        let colori, costoSingolo;
+        if (tipo === "LH100") {
+            colori = ["Ciano", "Magenta", "Giallo", "Nero", "White"];
+            costoSingolo = 150;
+        } else if (tipo === "LUS170") {
+            colori = ["Ciano", "Magenta", "Giallo", "Nero", "LightCyan", "LightMagenta"];
+            costoSingolo = 130;
+        } else {
+            alert("Tipo non valido.");
+            return;
+        }
+    
+        let totale = 0;
+        for (let colore of colori) {
+            const q = parseInt(prompt(`Quante bottiglie di ${colore}?`)) || 0;
+            totale += q * costoSingolo;
+        }
+    
+        alert(`Totale inchiostri ${tipo}: €${totale.toFixed(2)}`);
+    }
+    
+    function openPrintHelp() {
+        const div = document.getElementById("printHelpOutput");
+        div.innerHTML = `
+            <h3>Aiutami a stampare</h3>
+            <label>Cosa devi stampare?</label><br>
+            <button onclick="printCromo()">Cromo</button>
+            <button onclick="printSolido()">Solido</button>
+            <button onclick="printOpalino()">Opalino</button>
+            <button onclick="printSeeThrough()">See Through</button>
+            <br><button onclick="document.getElementById('printHelpOutput').innerHTML = '';">Chiudi</button>
+        `;
+    }
+    
+    function printCromo() {
+        alert("Carica pellicola cromata. Unisci file CMYK con WH usando funzione Composito del Raster Link (CMYK sopra).");
+    }
+    
+    function printSolido() {
+        alert("Carica materiale trasparente. Seleziona una sovrastampa.");
+    }
+    
+    function printOpalino() {
+        alert("Carica materiale trasparente. Seleziona due sovrastampe.");
+    }
+    
+    function printSeeThrough() {
+        alert("Carica materiale trasparente. Composito: CMYK + WH + CMYK (WH al centro).");
+    }
+    
+    function openMaterialList() {
+        document.getElementById("materialListContainer").innerHTML = "<p>Funzione da implementare: Lista materiale mancante.</p><button onclick=\"document.getElementById('materialListContainer').innerHTML = ''\">Chiudi</button>";
+    }
+    
+    function openFileSearch() {
+    const output = document.getElementById("searchFileOutput");
+    const nome = prompt("Che file stai cercando?");
+    const lower = nome.toLowerCase();
+
+    const collezioni = {
+        "13 gemglass": [
+            "agata blu","agata lilla","aurora","boulder","cliff","clouds","crater",
+            "galaxy","lagoon","magma","reef","river","rock"
+        ],
+        "24 gemglass": [
+            "bloomer","canyon","cave","chroma","coroundum","crimson","crystallissed","fable",
+            "frost","grain","ignite","lake","landscape","lignin","mahogany","neve",
+            "pangea a","punctum","sepia","solferino","sunburst","terrain","unakite",
+            "vulcano","waves"
+        ],
+        "calacatta": [
+            "fuxia","gold","natural","silver","turchese"
+        ],
+        "gemstone": [
+            "atlantic","breeze","confetti","fantasy","maracuja","messier","mineral","natural",
+            "noir","pacific","streetwalk","naive","will"
+        ],
+        "sight": [
+            "accra 01","accra 02","dubai 01","hanoi 01","hanoi 02","hanoi 02 bw",
+            "los angeles 01","los angeles 02","milano 01","milano 02","roma 01","roma 02",
+            "shangai 01","shangai 02","venezia 01","venezia 02"
+        ],
+        "onigem": [
+            "avory","bolt","deep blue","dusk","emerald","green","honey","mocha",
+            "nebula","ocean","petroleum","pink","rice","spider","morning"
+        ],
+        "spathula": [
+            "marmorato aqua","marmorato beige","marmorato blue","marmorato camel","marmorato cotto",
+            "marmorato grey","marmorato white","marmorato petrleum","marmorato light",
+            "ondulato aqua","ondulato beige","ondulato blue","ondulato camel","ondulato cotto",
+            "ondulato green","ondulato grey","ondulato light","ondulato petroleum","ondulato rose",
+            "ondulato shell","ondulato white",
+            "rigato beige","rigato blue","rigato green","rigato grey","rigato light",
+            "rigato petroleum","rigato rose","rigato sand","rigato white"
+        ]
+    };
+
+    let trovato = "File non trovato.";
+    for (let collezione in collezioni) {
+        if (collezioni[collezione].includes(lower)) {
+            trovato = `Appartiene alla collezione: ${collezione}. Cartella: ${collezione}`;
+            break;
+        }
+    }
+
+    output.innerHTML = `<p>${trovato}</p><button onclick="document.getElementById('searchFileOutput').innerHTML = '';">Chiudi</button>`;
+}
+
+    
+    function checkPuliziaMacchina() {
+        const steps = [
+            "1. Metti in LOCAL la macchina",
+            "2. Premi FUNC 1 per andare su MENU",
+            "3. Usa i tasti direzionali per andare su Manutenzione e premi ENTER",
+            "4. Seleziona Stazione",
+            "5. Seleziona Manutenzione Stazione",
+            "6. Attendi l’uscita del carrello",
+            "7. Trascina il carrello verso gli inchiostri",
+            "8. Apri entrambi gli sportelli (UCJV300 e quello sotto)",
+            "9. Pulisci attorno alle testine con panno imbevuto d’alcool (non sopra)",
+            "10. Riporta il carrello nella posizione corretta",
+            "11. Chiudi tutti gli sportelli",
+            "12. Shakera gli inchiostri White LH100",
+            "13. Premi ENTER",
+            "14. Premi FUNC 2 e vai in Cleaning",
+            "15. Fai una pulizia normale (2 minuti)",
+            "16. Torna in REMOTE"
+        ];
+        let currentStep = 0;
+        const container = document.getElementById("puliziaOutput");
+        container.innerHTML = `
+            <p>${steps[currentStep]}</p>
+            <button onclick="nextStep()">Continua</button>
+            <button onclick="document.getElementById('puliziaOutput').innerHTML = '';">Chiudi</button>
+        `;
+    
+        window.nextStep = function() {
+            currentStep++;
+            if (currentStep < steps.length) {
+                container.innerHTML = `
+                    <p>${steps[currentStep]}</p>
+                    <button onclick="nextStep()">Continua</button>
+                    <button onclick="document.getElementById('puliziaOutput').innerHTML = '';">Chiudi</button>
+                `;
+            } else {
+                container.innerHTML = "<p>Pulizia completata!</p><button onclick=\"document.getElementById('puliziaOutput').innerHTML = ''\">Chiudi</button>";
+            }
+        };
+    }
+    
+    function grandezzaStampa() {
+        const larghezza = parseInt(prompt("Inserisci la larghezza in mm")) || 0;
+        const altezza = parseInt(prompt("Inserisci l'altezza in mm")) || 0;
+        const cliente = prompt("Stampi per Via Monti o Goldenglass?").toLowerCase();
+        let l = larghezza, h = altezza;
+        if (cliente === "via monti") {
+            l += 20;
+            h += 50;
+        } else if (cliente === "goldenglass") {
+            l += 60;
+            h += 100;
+        }
+        document.getElementById("misureOutput").innerHTML = `
+            <p>Dimensioni finali: ${l} mm x ${h} mm</p>
+            <button onclick="document.getElementById('misureOutput').innerHTML = '';">Chiudi</button>
+        `;
+    }
+    
+    function definisciAumentoStampe() {
+        const cliente = prompt("Per chi stai stampando? (Via Monti / Goldenglass)").toLowerCase();
+        let aumento = "";
+        if (cliente === "via monti") {
+            aumento = "+20mm in larghezza, +50mm in altezza";
+        } else if (cliente === "goldenglass") {
+            aumento = "+60mm in larghezza, +100mm in altezza";
+        } else {
+            aumento = "Cliente non valido.";
+        }
+        document.getElementById("aumentoOutput").innerHTML = `
+            <p>Aumento misure: ${aumento}</p>
+            <button onclick="document.getElementById('aumentoOutput').innerHTML = '';">Chiudi</button>
+        `;
+    }
+    
+    function visualizzaOrdiniStampanti() {
+        const div = document.getElementById("ordiniStampanti");
+        div.innerHTML = "<p>Nessun ordine ricevuto. Funzione da collegare al backend ordini.</p>";
+    }
+    function caricaOrdineAmministrazione() {
+    const ref = document.getElementById("riferimentoOrdineAmm").value;
+    const priorita = document.getElementById("prioritaOrdineAmm").value;
+    const scadenza = document.getElementById("scadenzaOrdineAmm").value;
+    const destinazione = document.getElementById("destinazioneOrdineAmm").value;
+
+    if (!ref || !priorita || !scadenza || !destinazione) {
+        alert("Compila tutti i campi!");
+        return;
+    }
+
+    const ordine = {
+        riferimento: ref,
+        priorita: priorita,
+        scadenza: scadenza
+    };
+
+    // Salvataggio globale
+    let ordini = JSON.parse(localStorage.getItem("ordiniCaricati")) || [];
+    ordini.push({ ...ordine, destinazione });
+    localStorage.setItem("ordiniCaricati", JSON.stringify(ordini));
+
+    // Inserimento nella sezione controlla ordini del reparto
+    const repartoId = `controllaOrdini_${destinazione}`;
+    const contenitore = document.getElementById(repartoId);
+    if (contenitore) {
+        const div = document.createElement("div");
+        div.className = "ordineBox";
+        div.innerHTML = `
+            <strong>Ordine:</strong> ${ref} <br>
+            <strong>Priorità:</strong> ${priorita} <br>
+            <strong>Consegna:</strong> ${scadenza} <br>
+            <button onclick="completaOrdine('${ref}', '${destinazione}', this)">Completa</button>
+        `;
+        contenitore.appendChild(div);
+    }
+
+    document.getElementById("confermaCaricamentoOrdineAmm").innerText = "Ordine inviato con successo!";
+
+    // Reset
+    document.getElementById("riferimentoOrdineAmm").value = "";
+    document.getElementById("prioritaOrdineAmm").value = "";
+    document.getElementById("scadenzaOrdineAmm").value = "";
+    document.getElementById("destinazioneOrdineAmm").value = "";
+}
+
+function completaOrdine(riferimento, reparto, bottone) {
+    const ordineDiv = bottone.parentElement;
+    ordineDiv.remove();
+
+    let ordini = JSON.parse(localStorage.getItem("ordiniCaricati")) || [];
+    ordini = ordini.filter(o => o.riferimento !== riferimento || o.destinazione !== reparto);
+    localStorage.setItem("ordiniCaricati", JSON.stringify(ordini));
+}
+
+    </script>
+</body>
+</html>
